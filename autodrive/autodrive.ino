@@ -15,19 +15,25 @@ int speed = 200;
 //1 m = 7000 ms , 1 cm = 70 ms
 
 void stop() {
+    digitalWrite(COLL_LEFT_PIN, HIGH);
+    digitalWrite(COLL_RIGHT_PIN, HIGH);
     if (digitalRead(COLL_RIGHT_PIN) == LOW || digitalRead(COLL_LEFT_PIN) == LOW) {
-      set_direction(BACKWARD, BACKWARD);
-      delay(1750);
-      set_direction(FORWARD, FORWARD);
-      if (random(2) == 0) {
-        set_speed(speed, 0);        
-      }
-      else {
-        set_speed(0, speed);
-      }
-      delay(random(908, 2723));
-      set_speed(speed, speed);
+      reset_route();
     }   
+}
+
+void reset_route() {
+    set_direction(BACKWARD, BACKWARD);
+    delay(1750);
+    set_direction(FORWARD, FORWARD);
+    if (random(2) == 0) {
+      set_speed(speed, 0);        
+    }
+    else {
+      set_speed(0, speed);
+    }
+    delay(random(908, 2723));
+    set_speed(speed, speed);
 }
 
 void set_speed(uint8_t left, uint8_t right) {
@@ -51,6 +57,9 @@ void setup() {
     pinMode(MOTOR_RIGHT_DIR_PIN, OUTPUT);
     pinMode(MOTOR_RIGHT_SPEED_PIN, OUTPUT); 
 
+    digitalWrite(COLL_LEFT_PIN, HIGH);
+    digitalWrite(COLL_RIGHT_PIN, HIGH);
+    
     digitalWrite(MOTOR_LEFT_DIR_PIN, LOW);
     digitalWrite(MOTOR_LEFT_SPEED_PIN, LOW);
     digitalWrite(MOTOR_RIGHT_DIR_PIN, LOW);
