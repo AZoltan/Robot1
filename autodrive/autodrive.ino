@@ -10,30 +10,17 @@ const uint8_t COLL_LEFT_ISR = 1;   // interrupt ID for PIN 3
 const uint8_t FORWARD = HIGH;
 const uint8_t BACKWARD = LOW;
 
+volatile bool collision = false;
 int speed = 200;
 //360 fok = 3630 ms, 1 fok = 10,0833 ms
 //1 m = 7000 ms , 1 cm = 70 ms
 
 void stop() {
-    digitalWrite(COLL_LEFT_PIN, HIGH);
-    digitalWrite(COLL_RIGHT_PIN, HIGH);
     if (digitalRead(COLL_RIGHT_PIN) == LOW || digitalRead(COLL_LEFT_PIN) == LOW) {
-      reset_route();
-    }   
-}
-
-void reset_route() {
-    set_direction(BACKWARD, BACKWARD);
-    delay(1750);
-    set_direction(FORWARD, FORWARD);
-    if (random(2) == 0) {
-      set_speed(speed, 0);        
+      collision = true;
     }
-    else {
-      set_speed(0, speed);
-    }
-    delay(random(908, 2723));
-    set_speed(speed, speed);
+    digitalWrite(COLL_LEFT_PIN, HIGH);
+    digitalWrite(COLL_RIGHT_PIN, HIGH);   
 }
 
 void set_speed(uint8_t left, uint8_t right) {
@@ -47,16 +34,14 @@ void set_direction(uint8_t left, uint8_t right) {
 }
 
 void setup() {
-    // inital states
-    
-    pinMode(COLL_LEFT_PIN, INPUT);
-    pinMode(COLL_RIGHT_PIN, INPUT);
-    
+    // inital states    
     pinMode(MOTOR_LEFT_DIR_PIN, OUTPUT);
     pinMode(MOTOR_LEFT_SPEED_PIN, OUTPUT);
     pinMode(MOTOR_RIGHT_DIR_PIN, OUTPUT);
     pinMode(MOTOR_RIGHT_SPEED_PIN, OUTPUT); 
 
+    pinMode(COLL_LEFT_PIN, INPUT);
+    pinMode(COLL_RIGHT_PIN, INPUT);
     digitalWrite(COLL_LEFT_PIN, HIGH);
     digitalWrite(COLL_RIGHT_PIN, HIGH);
     
@@ -64,14 +49,28 @@ void setup() {
     digitalWrite(MOTOR_LEFT_SPEED_PIN, LOW);
     digitalWrite(MOTOR_RIGHT_DIR_PIN, LOW);
     digitalWrite(MOTOR_RIGHT_SPEED_PIN, LOW);
-    
-    set_direction(FORWARD, FORWARD);
-    set_speed(speed, speed);
 
     attachInterrupt(COLL_RIGHT_ISR, stop, FALLING);
-    attachInterrupt(COLL_LEFT_ISR, stop, FALLING);    
+    attachInterrupt(COLL_LEFT_ISR, stop, FALLING); 
+ 
+    set_direction(FORWARD, FORWARD);
+    set_speed(speed, speed);   
 }
 
 void loop() {
     delay(1000);
+    if (collision == true) {
+      set_direction(BACKWARD, BACKWARD);
+      delay(1750);
+      set_direction(FORWARD, FORWARD);
+      if (random(2) == 0) {
+        set_speed(speed, 0);        
+      }
+      else {
+        set_speed(0, speed);
+      }
+      delay(random(908, 2723));
+      set_speed(speed, speed);
+      collision = false;
+    }
 }
