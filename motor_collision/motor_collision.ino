@@ -102,13 +102,15 @@ void setup() {
     slcd.begin();
     
     s.attach(SERVO_PIN);
-    s.write(50);
+    s.write(90);
     
     attachInterrupt(COLL_RIGHT_ISR, right_collision_callback, FALLING);
     attachInterrupt(COLL_LEFT_ISR, left_collision_callback, FALLING);
     
     // start
     motor_go_forward();
+    slcd.setCursor(1, 0);
+    slcd.print("MOVING FORWARD");
 }
 
 
@@ -122,27 +124,37 @@ void handle_collision(bool coll) {
     s.write(0);
     int left = measure_distance();
     slcd.setCursor(0, 0);
-    slcd.print("d_left = ");
+    slcd.print("l=");
     slcd.print((float)left, DEC);
     slcd.print("  ");
     delay(1000);
-    s.write(90);
+    s.write(180);
     int right = measure_distance();
-    slcd.setCursor(0, 1);
-    slcd.print("d_right = ");
+    slcd.setCursor(11, 0);
+    slcd.print("r=");
     slcd.print((float)right, DEC);
     slcd.print("  ");
     delay(1000);
     if (left > right) {
+      slcd.setCursor(7, 0);
+      slcd.print(">");
+      slcd.setCursor(2, 1);
+      slcd.print("TURNING LEFT");
       motor_turn(90);
     }
     else {
+      slcd.setCursor(7, 0);
+      slcd.print("<");
+      slcd.setCursor(2, 1);
+      slcd.print("TURNING RIGHT");
       motor_turn(-90);
     }
     motor_stop();
-    s.write(50);
+    s.write(90);
     slcd.clear();
     motor_go_forward();
+    slcd.setCursor(1, 0);
+    slcd.print("MOVING FORWARD");
     digitalWrite(LED_PIN, LOW);  
 }
 
